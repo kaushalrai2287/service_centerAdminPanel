@@ -1,0 +1,36 @@
+{
+  "name": "admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.1",
+    "@popperjs/core": "^2.11.8",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.47.10",
+    "@tanstack/react-table": "^8.20.5",
+    "bootstrap": "^5.3.3",
+    "next": "15.0.3",
+    "react": "^18.3.1",
+    "react-csv": "^2.2.2",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.2",
+    "react-select": "^5.8.3",
+    "shadcn-ui": "^0.2.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-csv": "^1.1.10",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.3",
+    "typescript": "^5"
+  }
+}
