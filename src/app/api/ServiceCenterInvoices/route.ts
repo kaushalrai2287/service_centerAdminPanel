@@ -15,6 +15,7 @@ export async function POST(req: any) {
             .from('ServiceCenter_invoices')
             .select(`
                 booking_id,
+                invoice_id,
                 service_center_id,
                 driver_id,
                 total_amount,
@@ -26,7 +27,7 @@ export async function POST(req: any) {
 
         // Apply status filter if provided
         if (status) {
-            query = query.eq('status', status);
+            query = query.eq('is_paid', status);
         }
 
         // Apply start_date filter if provided

@@ -309,7 +309,6 @@
 // export default InvoiceList;
 
 "use client";
-
 import React, { useState, useEffect } from "react";
 import Header from "../../../../components/Header";
 import Sidemenu from "../../../../components/Sidemenu";
@@ -400,7 +399,6 @@ const InvoiceList = () => {
     fetchData();
   };
 
-  // Handle Filter Input Changes
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -408,20 +406,19 @@ const InvoiceList = () => {
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
 
-  // Clear Filters
+  // Clear filters and trigger fetchData
   const handleClearFilters = () => {
     setFilters({
       status: "",
       start_date: "",
       end_date: "",
     });
-    fetchData();
   };
 
-  // Fetch data on initial render
+  // Fetch data on initial render or when filters change
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [filters]); // Fetch data whenever filters change
 
   return (
     <main className="Service_center_list_main">
