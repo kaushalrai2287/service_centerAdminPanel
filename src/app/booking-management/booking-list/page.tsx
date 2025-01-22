@@ -8,7 +8,8 @@ import { DataTable } from "../../../../components/ui/datatable";
 
 import { createClient } from "../../../../utils/supabase/client";
 import { CSVLink } from "react-csv";
-const supabase = createClient();
+import { redirect } from "next/navigation";
+const supabase = await createClient();
 
 type Booking = {
   booking_id: string;
@@ -30,6 +31,21 @@ type Booking = {
 };
 
 const BookingList = () => {
+
+
+   useEffect(() => {
+      const fetchUser = async () => {
+        const supabase = await createClient();
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+        if (error || !user) {
+          redirect("/login");
+        }
+      };
+      fetchUser();
+    }, []);
   const [isToggled, setIsToggled] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -461,3 +477,4 @@ const BookingList = () => {
 };
 
 export default BookingList;
+

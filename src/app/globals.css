@@ -874,3 +874,19 @@ input[type="checkbox"] {
   max-width: 50%;
 }
 /* Brand ends */
+/* Profile Management pages start */
+.profile_add_bulk_box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.form_heading_add_button_box {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.bulk_upload_btn {
+  background-color: #ffffff;
+  color: #000000;
+}
+/* Profile Management pages ends */

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { logout } from "@/app/dashboard/action";
 
 const Header = () => {
     const [isToggled_new, setIsToggled_new] = useState(false);
@@ -35,9 +36,12 @@ const Header = () => {
                     <div className="notification_iconbox">
                         <img src="/images/service-center/notification-on.svg" alt="Notification icon" className="img-fluid" />
                     </div>
-                    <div className="logout_iconbox">
-                    <img src="/images/service-center/logout.svg" alt="Logout icon" className="img-fluid" />
+                    <div className="logout_iconbox" onClick={logout} style={{ cursor: "pointer" }}>
+                        <img src="/images/service-center/logout.svg" alt="Logout icon" className="img-fluid" />
                     </div>
+                    {/* <div className="logout_iconbox">
+                    <img src="/images/service-center/logout.svg" alt="Logout icon" className="img-fluid" />
+                    </div> */}
                     <div className="profile_imagebox">
                     <img src="/images/service-center/user.png" alt="Profile image" className="img-fluid" />
                     </div>

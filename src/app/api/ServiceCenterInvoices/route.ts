@@ -4,13 +4,13 @@ const supabase = createClient();
 
 export async function POST(req: any) {
     try {
-        // Check if the request body is present
+     
         const body = await req.json().catch(() => null);
 
-        // If no body is provided, set the filters to fetch all data
+      
         const { status, start_date, end_date, page = 1, limit = 10 } = body || {};
 
-        // Base query for fetching data
+     
         let query = supabase
             .from('ServiceCenter_invoices')
             .select(`
@@ -25,20 +25,17 @@ export async function POST(req: any) {
                 service_centers (name)
             `);
 
-        // Apply status filter if provided
+      
         if (status) {
             query = query.eq('is_paid', status);
         }
 
         // Apply start_date filter if provided
-        if (start_date) {
-            query = query.gte('payment_date', start_date);
+        if (start_date && end_date) {
+            query = query.gte('payment_date', start_date).lte('payment_date', end_date);
         }
 
-        // Apply end_date filter if provided
-        if (end_date) {
-            query = query.lte('payment_date', end_date);
-        }
+       
 
         // Apply pagination
         const offset = (page - 1) * limit;

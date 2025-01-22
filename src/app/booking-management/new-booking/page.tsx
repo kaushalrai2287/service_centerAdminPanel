@@ -8,7 +8,8 @@ import { custom, z } from "zod";
 import Header from "../../../../components/Header";
 import Sidemenu from "../../../../components/Sidemenu";
 import { createClient } from "../../../../utils/supabase/client";
-const supabase = createClient();
+import { redirect } from "next/navigation";
+const supabase = await createClient();
 
 const formSchema = z.object({
   vehicle_no: z.string().min(1, "Vehicle Number is required"),
@@ -36,6 +37,21 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const NewBooking = () => {
+
+
+   useEffect(() => {
+      const fetchUser = async () => {
+        const supabase = await createClient();
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+        if (error || !user) {
+          redirect("/login");
+        }
+      };
+      fetchUser();
+    }, []);
   const [isToggled, setIsToggled] = useState(false); // State for toggle
   const [brands, setBrands] = useState<{ id: string; name: string }[]>([]);
   const [models, setModels] = useState<{ id: string; name: string }[]>([]);

@@ -314,8 +314,26 @@ import Header from "../../../../components/Header";
 import Sidemenu from "../../../../components/Sidemenu";
 import { DataTable } from "../../../../components/ui/datatable";
 import { CSVLink } from "react-csv";
-
+import { createClient } from "../../../../utils/supabase/client";
+import { redirect, useRouter } from "next/navigation";
 const InvoiceList = () => {
+
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const supabase = await createClient();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error || !user) {
+        redirect("/login");
+      }
+    };
+    fetchUser();
+  }, []);
+
+
   const [isToggled, setIsToggled] = useState(false);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -376,8 +394,8 @@ const InvoiceList = () => {
             Date: item.payment_date || "N/A",
             Cost: item.total_amount || "N/A",
             Status: item.is_paid ? "Paid" : "Pending",
-            editLink: `#edit/${item.booking_id}`,
-            deleteLink: `#delete/${item.booking_id}`,
+            // editLink: `#edit/${item.booking_id}`,
+            // deleteLink: `#delete/${item.booking_id}`,
           })
         );
 
@@ -452,8 +470,8 @@ const InvoiceList = () => {
                     className="form-control"
                     name="status"
                     id="status"
-                    value={filters.status}
-                    onChange={handleFilterChange}
+                    // value={filters.status}
+                    // onChange={handleFilterChange}
                   >
                     <option value="">Select Status</option>
                     <option value="Paid">Paid</option>

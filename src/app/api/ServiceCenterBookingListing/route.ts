@@ -129,14 +129,15 @@
 // }
 import { createClient } from "../../../../utils/supabase/client";
 
-const supabase = createClient();
+const supabase =await createClient();
 
 export async function POST(req: any) {
     try {
-        // Parse request body
-        const { vehicle_no, status, driver_username, start_date, end_date,page = 1, limit = 10 } = await req.json();
+     
+        const body = await req.json().catch(() => null);
+        const { vehicle_no, status, driver_username, start_date, end_date,page = 1, limit = 10 } = body || {};
 
-        // Build the query with filters
+       
         let query = supabase
             .from('bookings')
             .select(`
@@ -160,34 +161,34 @@ export async function POST(req: any) {
             `)
             .not('vehicles', 'is', null);;
 
-        // Apply vehicle number filter
+      
         if (vehicle_no) {
             query = query
                 .eq('vehicles.license_plate_no', vehicle_no);
         }
 
-        // Apply status filter
+        
         if (status) {
             query = query.eq('status', status);
         }
 
-        // Apply driver username filter
+        
         if (driver_username) {
             query = query.ilike('driver_username', `%${driver_username}%`);
         }
 
-        // Apply date range filter
+
         if (start_date && end_date) {
             query = query.gte('pickup_date_time', start_date).lte('pickup_date_time', end_date);
         }
- // Apply pagination
+
             const offset = (page - 1) * limit;
             query = query.range(offset, offset + limit - 1);
 
-        // Execute query
+   
         const { data, error } = await query;
 
-        // Handle errors
+       
         if (error) {
             console.error('Database Error:', error.message);
             return new Response(
@@ -196,7 +197,7 @@ export async function POST(req: any) {
             );
         }
 
-        // Handle empty data
+      
         if (!data || data.length === 0) {
             return new Response(
                 JSON.stringify({ status: '0', message: 'No bookings found.' }),
@@ -204,7 +205,7 @@ export async function POST(req: any) {
             );
         }
 
-        // Return successful response
+
         return new Response(
             JSON.stringify({ status: 'success', data }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
