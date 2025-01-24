@@ -57,7 +57,7 @@ const BookingList = () => {
     end_date: "",
   });
   const [page, setPage] = useState(1);
-  // const [limit] = useState(10);
+ 
   const [limit, setLimit] = useState(10);
   const toggleClass = () => {
     setIsToggled(!isToggled);
@@ -455,7 +455,7 @@ const BookingList = () => {
                   hiddenColumns={hiddenColumns}
                   driverCallButton={true}
                 />
-                <div className="pagination">
+                {/* <div className="pagination">
                   <button
                     onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                     disabled={page === 1}
@@ -466,7 +466,7 @@ const BookingList = () => {
                   <button onClick={() => setPage((prev) => prev + 1)}>
                     Next
                   </button>
-                </div>
+                </div> */}
               </div>
             )}
           </div>

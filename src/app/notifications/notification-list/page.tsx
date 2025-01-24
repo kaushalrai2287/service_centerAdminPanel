@@ -97,7 +97,7 @@ const NewBooking = () => {
                                     </button>
                                 </div>
                                 <div id="notificationOne" className="accordion-collapse collapse" aria-labelledby="notificationHeadingOne" data-bs-parent="#accordionFlushNotification">
-                                    <div className="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> className. This is the first item's accordion body.</div>
+                                    <div className="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> className. This is the first item&apos;s accordion body.</div>
                                 </div>
                             </div>
                             <div className="accordion-item">
@@ -115,7 +115,7 @@ const NewBooking = () => {
                                     </button>
                                 </div>
                                 <div id="notificationTwo" className="accordion-collapse collapse" aria-labelledby="notificationHeadingTwo" data-bs-parent="#accordionFlushNotification">
-                                    <div className="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> className. This is the second item's accordion body. Let's imagine this being filled with some actual content.</div>
+                                    <div className="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> className. This is the second item&apos;s accordion body. Let&apos;s imagine this being filled with some actual content.</div>
                                 </div>
                             </div>
                             <div className="accordion-item">
@@ -133,7 +133,7 @@ const NewBooking = () => {
                                     </button>
                                 </h2>
                                 <div id="notificationThree" className="accordion-collapse collapse" aria-labelledby="notificationHeadingThree" data-bs-parent="#accordionFlushNotification">
-                                    <div className="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the third item's accordion body. Nothing more exciting happening here in terms of content, but just filling up the space to make it look, at least at first glance, a bit more representative of how this would look in a real-world application.</div>
+                                    <div className="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the third item&#39;s accordion body. Nothing more exciting happening here in terms of content, but just filling up the space to make it look, at least at first glance, a bit more representative of how this would look in a real-world application.</div>
                                 </div>
                             </div>
                         </div>
