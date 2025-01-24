@@ -443,7 +443,7 @@ const ProfileServiceCenter = () => {
                   <div className="inner_form_group">
                     <label htmlFor="name">Name</label>
                     <input
-                      className="form-control"
+                      className="form-control disabled-input"
                       type="text"
                       id="name"
                       {...register("name")}
@@ -458,7 +458,7 @@ const ProfileServiceCenter = () => {
                       Business Registration Number
                     </label>
                     <input
-                      className="form-control"
+                      className="form-control disabled-input"
                       type="text"
                       id="business_registration_no"
                       {...register("business_registration_no")}
@@ -485,7 +485,7 @@ const ProfileServiceCenter = () => {
                   <div className="inner_form_group">
                     <label htmlFor="gst_number">GST Number</label>
                     <input
-                      className="form-control"
+                      className="form-control disabled-input"
                       type="text"
                       id="gst_number"
                       {...register("gst_number")}
@@ -503,7 +503,7 @@ const ProfileServiceCenter = () => {
                   <div className="inner_form_group">
                     <label htmlFor="email">Email</label>
                     <input
-                      className="form-control"
+                      className="form-control disabled-input"
                       type="email"
                       id="email"
                       {...register("email")}

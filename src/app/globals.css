@@ -1000,4 +1000,10 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: center;
 }
+.disabled-input {
+  background-color: #e4e2e2; /* Light gray background */
+  color: #7a7a7a; /* Dark gray text */
+  cursor: not-allowed;
+}
+
 /* Notification List ends */
