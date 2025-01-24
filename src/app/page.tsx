@@ -19,7 +19,7 @@ export default function Home(){
         router.push("/login")
       }
       else {
-        router.push("/dashboard")
+        router.push("/booking-management/booking-list")
       }
     }
     checkUser();

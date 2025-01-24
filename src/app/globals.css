@@ -67,7 +67,7 @@ body:has(.menu_open){
 /* Utility classes start */
 .inner_mainbox {
   display: grid;
-  grid-template-columns: 18% 1fr;
+  grid-template-columns: 20% 1fr;
   transition-duration: 0.7s;
   height: 100vh;
 }
@@ -87,7 +87,7 @@ body:has(.menu_open){
   background-color: #ffffff;
   grid-column: 1/2;
   position: fixed;
-  width: 18%;
+  width: 20%;
   transition-duration: 0.7s;
   height: 100%;
   z-index: 99;
@@ -487,16 +487,8 @@ tbody, td, tfoot, th, thead, tr {
 }
 /* Booking management - Booking list page ends */
 
-
-
-
-
-
-
-
-
 /* Login page start */
-.main_section {
+/* .main_section {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -504,21 +496,22 @@ tbody, td, tfoot, th, thead, tr {
   height: 100%;
   position: relative;
   background-image: linear-gradient(62deg, rgb(245,245,245,0.6),rgb(255,80,91,0.6));
-}
+} */
 .login_mainbox {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  /* box-shadow: 4px 4px 12px #ccc; */
+  grid-template-columns: 1fr 480px;
   border-radius: 12px;
   position: relative;
   z-index: 10;
 }
 .login_formbox {
-  padding: 30px 60px;
-  background-color: #ffffff;
-  border-radius: 0 12px 12px 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  padding: 30px 80px;
 }
-.login_imgbox {
+/* .login_imgbox {
   background-color: var(--first-color);
   display: flex;
   height: 100%;
@@ -536,12 +529,19 @@ tbody, td, tfoot, th, thead, tr {
   width: 30px;
   height: 30px;
   background-color: var(--first-color);
-}
+} */
 .login_form_heading h1 {
+  font-family: Montserrat-SemiBold;
+  font-size: 20px;
+  text-align: center;
+}
+.login_form_sub_heading h2 {
   font-family: Montserrat-Bold;
   font-size: 30px;
+  line-height: normal;
+  text-align: center;
 }
-.login_form_heading h1 span {
+.login_form_sub_heading h2 span {
   color: var(--first-color);
 }
 .login_form_para p {
@@ -599,9 +599,7 @@ tbody, td, tfoot, th, thead, tr {
   font-size: 14px;
 }
 .login_form {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  margin: 20px 0 0 0;
 }
 .form_group {
   display: grid;
@@ -890,3 +888,116 @@ input[type="checkbox"] {
   color: #000000;
 }
 /* Profile Management pages ends */
+/* New login form start */
+.login_imgbox {
+  width: 100%;
+  height: 100vh;
+}
+.login_imgbox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.form_group.login_form_submit_btnbox {
+  display: flex;
+  margin: 20px 0;
+}
+.form_group.login_form_submit_btnbox input {
+  background-color: var(--first-color);
+  color: #ffffff;
+}
+.forgot_password_link {
+  text-align: center;
+}
+.forgot_password_link p a {
+  color: var(--first-color);
+  font-family: Montserrat-Bold;
+  font-size: 14px;
+}
+/* New login form ends */
+/* Forgot password page start */
+.forgot_password_main {
+  height: 100%;
+  background-color: #ebeff2;
+}
+.forgot_pass_mainbox {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.forgot_pass_listing {
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 2px 2px 12px #ccc;
+}
+.forgot_password_main .form_group {
+  margin: 0;
+}
+.forgot_pass_heading h1 {
+  font-family: Montserrat-Bold;
+  font-size: 25px;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+.forgot_pass_heading h1 span {
+  color: var(--first-color);
+}
+.forgot_pass_para {
+  text-align: center;
+  font-size: 14px;
+}
+.forgot_password_main .form_group {
+  margin: 20px 0 0 0;
+}
+.forgot_password_main .error {
+  grid-column: 2 / -1;
+  font-size: 12px;
+  color: var(--first-color);
+}
+/* Forgot password page ends */
+/* Notification list start */
+.notification_accordion_mainbox {
+  padding: 40px 50px 40px 50px;
+}
+.notification_accordion_mainbox .accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.notification_accordion_mainbox .accordion-button:not(.collapsed) {
+  color: #000000;
+  background-color: #dee6ec;
+}
+.notification_accordion_mainbox .accordion-button:focus {
+  box-shadow: none;
+}
+.notification_accordion_mainbox .accordion-button {
+  gap: 10px;
+  line-height: normal;
+  font-family: 'Montserrat-Medium';
+  font-size: 14px;
+}
+.notification_accordion_mainbox .accordion-body {
+  font-size: 14px;
+}
+.notification_accordion_mainbox .accordion-button {
+  position: relative;
+  display: grid;
+  grid-template-columns: 50px 1fr 80px 20px;
+  height: 50px;
+  padding: 0 15px 0 0;
+}
+.notification_date {
+  font-size: 12px;
+  color: #707070;
+}
+.notification_icons {
+  height: 100%;
+  background-color: #e3eaf0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Notification List ends */

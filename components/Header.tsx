@@ -36,7 +36,7 @@ const Header = () => {
                     <div className="notification_iconbox">
                         <img src="/images/service-center/notification-on.svg" alt="Notification icon" className="img-fluid" />
                     </div>
-                    <div className="logout_iconbox" onClick={logout} style={{ cursor: "pointer" }}>
+                    <div title="Logout" className="logout_iconbox" onClick={logout} style={{ cursor: "pointer" }}>
                         <img src="/images/service-center/logout.svg" alt="Logout icon" className="img-fluid" />
                     </div>
                     {/* <div className="logout_iconbox">

@@ -536,7 +536,7 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
         </div>
         <div className="accordion accordion-flush" id="accordionFlushExample">
           {/* Dashboard */}
-          <Link href="/">
+          <Link href="#">
             <div className="sidemenu_listing">
               <div className="sidemenu_icon">
                 <img
@@ -547,7 +547,7 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
               </div>
               <div className="sidemenu_heading">
                 <h3>Dashboard</h3>
-                {/* <button onClick={() => logout()}>Logout</button>; */}
+               
               </div>
             </div>
           </Link>
@@ -779,19 +779,26 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
               <div className="accordion-body">
                 <div className="sidemunu_submenu_listing">
                   <ul>
-                    <li className={isActiveLink("/notifications/service-center/list") ? "heighlight" : ""}>
-                      <Link href="/notifications/service-center/list">
-                        To Service Center
+                    <li className={isActiveLink("/notifications/notification-list") ? "heighlight" : ""}>
+                      <Link href="/notifications/notification-list">
+                        Notification List
                       </Link>
-                    </li>
-                    <li className={isActiveLink("/notifications/driver/list") ? "heighlight" : ""}>
-                      <Link href="/notifications/driver/list">To Driver</Link>
                     </li>
                   </ul>
                 </div>
               </div>
             </div>
           </div>
+
+
+
+
+
+
+
+
+
+
           {/* Feedback & Complaints */}
           {/* <div className="accordion-item">
             <div className="accordion-header" id="flush-headingSeven">

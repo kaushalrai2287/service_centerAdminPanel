@@ -15,7 +15,7 @@ export default async function Dashboard() {
       <div>Dashboard</div>
       {/* <p>Hello {data.user.email}</p> */}
 
-      <LogoutButton />
+      {/* <LogoutButton /> */}
     </>
   );
 }

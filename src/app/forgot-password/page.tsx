@@ -29,15 +29,6 @@ export default function ForgotPassword() {
     setIsLoading(true);
     setError(null);
     setMessage(null);
-
-    // const redirectTo =
-    //   process.env.NODE_ENV === "development"
-    //     ? "http://localhost:3000/update-password"
-    //     : `${window.location.origin}/update-password`;
-
-    // const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-    //   redirectTo,
-    // });
  const { error } = await supabase.auth.resetPasswordForEmail(data.email)
     setIsLoading(false);
 
@@ -45,38 +36,48 @@ export default function ForgotPassword() {
       setError(error.message);
     } else {
       setMessage(
-        "A password reset link has been sent to your email. Please check your inbox."
+        "A password reset link has been sent to your email."
       );
     }
   };
 
-  return (
-    <div className="main_section">
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-lg-6">
-            <div className="form_box">
-              <h1>Forgot Password</h1>
-              <p>Enter your email to receive a password reset link.</p>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="form_group">
-                  <input
-                    type="email"
-                    {...register("email")}
-                    placeholder="Email"
-                  />
-                  {errors.email && <p className="error">{errors.email.message}</p>}
-                </div>
-                <button type="submit" disabled={isLoading}>
-                  {isLoading ? "Sending..." : "Send Reset Link"}
-                </button>
-              </form>
-              {message && <p className="success">{message}</p>}
-              {error && <p className="error">{error}</p>}
-            </div>
+return (
+  <main className="forgot_password_main">
+      <div className="forgot_pass_mainbox">
+          <div className="forgot_pass_listing">
+              <div className="forgot_pass_heading">
+                  <h1>Forgot <span>Password</span></h1>
+              </div>
+              <div className="forgot_pass_para">
+                  <p>Enter your email to receive a password reset link</p>
+              </div>
+              <div className="forgot_pass_form_box">
+                  <form onSubmit={handleSubmit(onSubmit)}>
+                      <div className="form_group">
+                          <div className="form_icon">
+                              <img src="/images/service-center/mail.svg" alt="Password" className="img-fluid" />
+                          </div>
+                          <input
+                              type="email"
+                              {...register("email")}
+                              placeholder="Email"
+                          />
+                          {errors.email && <p className="error">{errors.email.message}</p>}
+                      </div>
+                      <div className="form_group login_form_submit_btnbox">
+                          <input
+                              type="submit"
+                              value={isLoading ? "Please wait..." : "Send Link"}
+                              disabled={isLoading}
+                          />
+                      </div>
+                      {message && <p className="success">{message}</p>}
+                    {error && <p className="error">{error}</p>}
+                  </form>
+                  
+              </div>
           </div>
-        </div>
       </div>
-    </div>
-  );
+  </main>
+);
 }
