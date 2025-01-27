@@ -1,9 +1,11 @@
 import { createClient } from "../../../../../utils/supabase/client";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+
 const supabase = createClient();
-export async function GET(req: { url: string | URL; }) {
+
+export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
-    const recipient_id = searchParams.get("recipient_id"); // Get recipient_id from URL query
+    const recipient_id = searchParams.get("recipient_id");
 
     if (!recipient_id) {
         return NextResponse.json({ status: "error", message: "recipient_id is required" }, { status: 400 });
@@ -31,7 +33,7 @@ export async function GET(req: { url: string | URL; }) {
         if (error) throw error;
 
         return NextResponse.json({ status: "success", data });
-    } catch (error:any) {
+    } catch (error: any) {
         return NextResponse.json({ status: "error", message: error.message }, { status: 500 });
     }
 }
