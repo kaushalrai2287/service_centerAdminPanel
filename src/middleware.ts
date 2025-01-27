@@ -25,12 +25,12 @@ import { updateSession } from "../utils/supabase/middleware";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ✅ Allow password reset & confirmation pages to be accessed
+  
   if (pathname === "/forgot-password" || pathname === "/update-password" || pathname.startsWith("/auth/confirm")) {
-    return NextResponse.next(); // Let the request pass
+    return NextResponse.next(); 
   }
 
-  // ✅ Apply session update for all other routes
+ 
   return await updateSession(request);
 }
 

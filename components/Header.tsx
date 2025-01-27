@@ -1,18 +1,47 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { logout } from "@/app/dashboard/action";
+import { createClient } from "../utils/supabase/client";
+
+const supabase = createClient();
 
 const Header = () => {
+    const [userName, setUserName] = useState<string | null>(null);
     const [isToggled_new, setIsToggled_new] = useState(false);
-    const menuRef = useRef<HTMLDivElement | null>(null); // Explicitly type the ref
+    const menuRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError) {
+                console.error("Error fetching user:", userError);
+                return;
+            }
+
+            if (user) {
+                const service_center_auth_id = user.id;
+                const { data, error } = await supabase
+                    .from("service_centers")
+                    .select("name")
+                    .eq("auth_id", service_center_auth_id)
+                    .single();
+
+                if (error) {
+                    console.error("Error fetching service center name:", error);
+                    setUserName("Guest"); // Fallback if name is not found
+                } else {
+                    setUserName(data?.name || "Guest");
+                }
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const toggleMenu = () => {
         setIsToggled_new((prev) => !prev);
     };
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -30,7 +59,7 @@ const Header = () => {
         <header>
             <div className="header_mainbox">
                 <div className="header_profile_namebox">
-                    <h1>Welcome to <span>Rahul Rathod</span></h1>
+                    <h1>Welcome <span>{userName}</span></h1>
                 </div>
                 <div className="header_right_listing">
                     <div className="notification_iconbox">
@@ -39,14 +68,11 @@ const Header = () => {
                     <div title="Logout" className="logout_iconbox" onClick={logout} style={{ cursor: "pointer" }}>
                         <img src="/images/service-center/logout.svg" alt="Logout icon" className="img-fluid" />
                     </div>
-                    {/* <div className="logout_iconbox">
-                    <img src="/images/service-center/logout.svg" alt="Logout icon" className="img-fluid" />
-                    </div> */}
                     <div className="profile_imagebox">
-                    <img src="/images/service-center/user.png" alt="Profile image" className="img-fluid" />
+                        <img src="/images/service-center/user.png" alt="Profile image" className="img-fluid" />
                     </div>
                     <div className="service_center_logo">
-                    <img src="/images/service-center/service-center-logo.png" alt="Service center logo" className="img-fluid" />
+                        <img src="/images/service-center/service-center-logo.png" alt="Service center logo" className="img-fluid" />
                     </div>
                 </div>
             </div>

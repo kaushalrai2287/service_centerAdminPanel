@@ -12,13 +12,12 @@ import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import { CSVLink } from "react-csv";
 
-// import supabase from "../../../../lib/supabaseClient"; // Import supabase client
 const supabase = createClient();
 
 const ProfileCustomerList = () => {
-  const [isToggled, setIsToggled] = useState(false); // State for toggle
+  const [isToggled, setIsToggled] = useState(false); 
   const [customers, setCustomers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); // State for loading
+  const [loading, setLoading] = useState(true); 
 
   const [filters, setFilters] = useState({
     name: "",
@@ -29,7 +28,7 @@ const ProfileCustomerList = () => {
   });
 
   const toggleClass = () => {
-    setIsToggled(!isToggled); // Toggle the state
+    setIsToggled(!isToggled);
   };
 
   const columns = {

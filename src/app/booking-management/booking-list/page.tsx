@@ -201,7 +201,7 @@ const BookingList = () => {
               </select>
             ),
             editLink: "#", // Edit page link
-            onDelete: () => handleDelete(booking.booking_id),
+            // onDelete: () => handleDelete(booking.booking_id),
           })
         );
 

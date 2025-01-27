@@ -21,13 +21,13 @@ const formSchema = z.object({
   customer_phone: z
     .string()
     .regex(/^\d+$/, "Phone must contain only digits")
-    .min(10)
-    .max(10),
+    .min(10, "Phone number must be 10 digits")
+    .max(10, "Phone number must be 10 digits"),
   Secondary_Contact_Number: z
     .string()
     .regex(/^\d+$/, "Phone must contain only digits")
-    .min(10)
-    .max(10),
+    .min(10, "Phone number must be 10 digits")
+    .max(10, "Phone number must be 10 digits").optional(),
   pickup_date_time: z.string().min(1, "Pickup Date and Time is required"),
   pickup_address: z.string().min(1, "Pickup Location is required"),
   dropoff_address: z.string().min(1, "Dropoff Location is required"),
@@ -37,21 +37,19 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const NewBooking = () => {
-
-
-   useEffect(() => {
-      const fetchUser = async () => {
-        const supabase = await createClient();
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
-        if (error || !user) {
-          redirect("/login");
-        }
-      };
-      fetchUser();
-    }, []);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const supabase = await createClient();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error || !user) {
+        redirect("/login");
+      }
+    };
+    fetchUser();
+  }, []);
   const [isToggled, setIsToggled] = useState(false); // State for toggle
   const [brands, setBrands] = useState<{ id: string; name: string }[]>([]);
   const [models, setModels] = useState<{ id: string; name: string }[]>([]);
@@ -82,7 +80,6 @@ const NewBooking = () => {
     fetchBrands();
   }, []);
 
-  
   useEffect(() => {
     const fetchModels = async () => {
       if (!selectedBrand) return;
@@ -101,17 +98,16 @@ const NewBooking = () => {
   }, [selectedBrand]);
   const onSubmit = async (data: FormValues) => {
     try {
-     
-      const { data: existingVehicle, error: existingVehicleError } = await supabase
-        .from("vehicles")
-        .select("vehicle_id")
-        .eq("license_plate_no", data.vehicle_no)
-        .single();
-  
+      const { data: existingVehicle, error: existingVehicleError } =
+        await supabase
+          .from("vehicles")
+          .select("vehicle_id")
+          .eq("license_plate_no", data.vehicle_no)
+          .single();
+
       let vehicleId = existingVehicle?.vehicle_id;
-  
+
       if (!vehicleId) {
-      
         const { data: newVehicle, error: newVehicleError } = await supabase
           .from("vehicles")
           .insert([
@@ -124,16 +120,15 @@ const NewBooking = () => {
           ])
           .select("vehicle_id")
           .single();
-  
+
         if (newVehicleError) {
           console.error("Error inserting vehicle:", newVehicleError.message);
           return;
         }
-  
+
         vehicleId = newVehicle.vehicle_id;
       }
-  
-      
+
       const { error: bookingError } = await supabase.from("bookings").insert([
         {
           customer_name: data.customer_name,
@@ -144,21 +139,21 @@ const NewBooking = () => {
           special_instructions: data.special_instructions,
           customer_email: data.Customer_Email,
           Alternate_contact_no: data.Secondary_Contact_Number,
-          vehicle_id: vehicleId, 
+          vehicle_id: vehicleId,
         },
       ]);
-  
+
       if (bookingError) {
         console.error("Error inserting booking:", bookingError.message);
         return;
       }
-  
+
       alert("Booking successfully added!");
     } catch (error) {
       console.error("Error in onSubmit:", error);
     }
   };
-  
+
   // const onSubmit = async (data: FormValues) => {
   //   try {
   //     const { data: vehicleData, error: vehicleError } = await supabase
@@ -167,11 +162,11 @@ const NewBooking = () => {
   //         {
   //           license_plate_no: data.vehicle_no,
   //           brand_id: data.brand,
-  //           model_id: data.model, 
+  //           model_id: data.model,
   //           condition: data.condition,
   //         },
   //       ])
-  //       .select("vehicle_id") 
+  //       .select("vehicle_id")
   //       .single();
 
   //     if (vehicleError) {
@@ -181,7 +176,6 @@ const NewBooking = () => {
 
   //     const vehicleId = vehicleData?.vehicle_id;
 
-      
   //     const { data: bookingData, error: bookingError } = await supabase
   //       .from("bookings")
   //       .insert([
@@ -308,6 +302,9 @@ const NewBooking = () => {
                       {...register("condition")}
                       placeholder="Special Handling Requirement"
                     />
+                    {errors.condition && (
+                      <p className="erro_message">{errors.condition.message}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -337,6 +334,11 @@ const NewBooking = () => {
                       type="text"
                       {...register("customer_name")}
                     />
+                    {errors.customer_name && (
+                      <p className="erro_message">
+                        {errors.customer_name.message}
+                      </p>
+                    )}
                   </div>
                   <div className="inner_form_group">
                     <label htmlFor="customer_phone">Phone Number</label>
@@ -346,6 +348,11 @@ const NewBooking = () => {
                       type="text"
                       {...register("customer_phone")}
                     />
+                    {errors.customer_phone && (
+                      <p className="erro_message">
+                        {errors.customer_phone.message}
+                      </p>
+                    )}
                   </div>
                   <div className="inner_form_group">
                     <label htmlFor="Customer_Email">Customer Email</label>
@@ -355,15 +362,27 @@ const NewBooking = () => {
                       type="text"
                       {...register("Customer_Email")}
                     />
+                    {errors.Customer_Email && (
+                      <p className="erro_message">
+                        {errors.Customer_Email.message}
+                      </p>
+                    )}
                   </div>
                   <div className="inner_form_group">
-                    <label htmlFor="Secondary_Contact_Number">Secondary Contact Number</label>
+                    <label htmlFor="Secondary_Contact_Number">
+                      Secondary Contact Number
+                    </label>
                     <input
                       className="form-control"
                       id="Secondary_Contact_Number"
                       type="text"
                       {...register("Secondary_Contact_Number")}
                     />
+                    {errors.Secondary_Contact_Number && (
+                      <p className="erro_message">
+                        {errors.Secondary_Contact_Number.message}
+                      </p>
+                    )}
                   </div>
                   <div className="inner_form_group">
                     <label htmlFor="pickup_date_time">
@@ -375,6 +394,11 @@ const NewBooking = () => {
                       type="datetime-local"
                       {...register("pickup_date_time")}
                     />
+                    {errors.pickup_date_time && (
+                      <p className="erro_message">
+                        {errors.pickup_date_time.message}
+                      </p>
+                    )}
                   </div>
                   <div className="inner_form_group">
                     <label htmlFor="pickup_address">Pickup Location</label>
@@ -384,6 +408,11 @@ const NewBooking = () => {
                       type="text"
                       {...register("pickup_address")}
                     />
+                    {errors.pickup_address && (
+                      <p className="erro_message">
+                        {errors.pickup_address.message}
+                      </p>
+                    )}
                   </div>
                   <div className="inner_form_group">
                     <label htmlFor="dropoff_address">Drop off Location</label>
@@ -393,6 +422,12 @@ const NewBooking = () => {
                       type="text"
                       {...register("dropoff_address")}
                     />
+
+                    {errors.dropoff_address && (
+                      <p className="erro_message">
+                        {errors.dropoff_address.message}
+                      </p>
+                    )}
                   </div>
                   <div className="inner_form_group">
                     <label htmlFor="special_instructions">

@@ -9,6 +9,7 @@ import Header from "../../../../components/Header";
 import Sidemenu from "../../../../components/Sidemenu";
 import HeadingBredcrum from "../../../../components/HeadingBredcrum";
 import { createClient } from "../../../../utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z
@@ -77,13 +78,25 @@ const ProfileCustomerAdd = () => {
   };
 
   const onSubmit = async (data: FormValues) => {
-    // Log the form data for debugging
-    // console.log("Form Data:", data);
-
-    // Extract necessary form fields
     const { name, vehicle_number, brand, model, address, city, mobile_number, pin_code } = data;
-
+  
     try {
+      // Check if vehicle number already exists
+      const { data: existingVehicle, error: checkError } = await supabase
+        .from("customers")
+        .select("id")
+        .eq("vehicle_number", vehicle_number)
+        .single(); // Fetch a single matching record
+  
+      if (checkError && checkError.code !== "PGRST116") {
+        throw checkError;
+      }
+  
+      if (existingVehicle) {
+        alert("Vehicle number already exists! Please enter a different number.");
+        return;
+      }
+  
       // Insert into the customers table
       const { error } = await supabase
         .from("customers")
@@ -99,20 +112,23 @@ const ProfileCustomerAdd = () => {
             pin_code,
           },
         ]);
-
+  
       if (error) {
-        throw error; // Throw the error to be caught in the catch block
+        throw error;
       }
-
-      // Success feedback
-    //   console.log("Customer added successfully!");
-    alert("Booking successfully added!");
-      // Optionally, reset form values here if needed
-
-    } catch (error:any) {
+  
+      alert("Booking successfully added!");
+    } catch (error: any) {
       console.error("Error inserting customer:", error.message);
     }
   };
+  
+  const router = useRouter();
+  const handleClose = (event: { preventDefault: () => void }) => {
+    event.preventDefault(); // Prevent default form behavior
+    router.push("/profile-management/customer-list"); // Navigate to the desired page
+  };
+
 
   return (
     <main className="add_service_center_main">
@@ -255,7 +271,7 @@ const ProfileCustomerAdd = () => {
                     />
                   </div>
                   <div className="add_submit_btn">
-                    <input type="button" className="close_btn" value="Close" />
+                    <input type="button" className="close_btn" value="Close" onClick={handleClose} />
                   </div>
                 </div>
               </div>

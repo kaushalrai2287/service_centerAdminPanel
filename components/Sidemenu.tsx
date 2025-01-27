@@ -637,8 +637,8 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
                     <li className={isActiveLink("/billing-and-payments/invoice-list") ? "heighlight" : ""}>
                       <Link href="/billing-and-payments/invoice-list">Invoice List</Link>
                     </li>
-                    <li className={isActiveLink("/billing-and-payments/invoice-details") ? "heighlight" : ""}>
-                      <Link href="/billing-and-payments/invoice-details">Invoice Details</Link>
+                    <li className={isActiveLink("#") ? "heighlight" : ""}>
+                      <Link href="#">Invoice Details</Link>
                     </li>
                   </ul>
                 </div>
