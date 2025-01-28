@@ -887,6 +887,25 @@ input[type="checkbox"] {
   background-color: #ffffff;
   color: #000000;
 }
+.profile_customer_list_main .profile_add_bulk_box {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+}
+.inner_form_group_upload input {
+  background-color: #f6f8f9;
+  height: 100%;
+  padding: 5px 10px;
+  border-radius: 0.375rem;
+}
+.profile_customer_list_main .form_heading_add_button_box {
+  justify-content: end;
+  align-items: start;
+}
+.download_sample_pdf {
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--first-color);
+}
 /* Profile Management pages ends */
 /* New login form start */
 .login_imgbox {
@@ -1000,6 +1019,8 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: center;
 }
+/* Notification List ends */
+
 .disabled-input {
   background-color: #e4e2e2; /* Light gray background */
   color: #7a7a7a; /* Dark gray text */

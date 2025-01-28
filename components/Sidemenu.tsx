@@ -613,7 +613,7 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
                 <div className="sidemenu_listing">
                   <div className="sidemenu_icon">
                     <img
-                      src="/images/dashboard/drivers.svg"
+                      src="/images/dashboard/Invoices.svg"
                       alt=""
                       className="img-fluid"
                     />
@@ -660,7 +660,7 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
                 <div className="sidemenu_listing">
                   <div className="sidemenu_icon">
                     <img
-                      src="/images/dashboard/booking.svg"
+                      src="/images/dashboard/roles-permissions.svg"
                       alt=""
                       className="img-fluid"
                     />

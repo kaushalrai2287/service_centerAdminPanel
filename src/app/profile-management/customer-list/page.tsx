@@ -11,6 +11,10 @@ import { createClient } from "../../../../utils/supabase/client";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import { CSVLink } from "react-csv";
+import {formatName} from "../../../../utils/stringHelper";
+import DownloadSampleFile from "../../../../components/CustomerListSampleExcel"; 
+
+
 
 const supabase = createClient();
 
@@ -253,32 +257,126 @@ const ProfileCustomerList = () => {
       alert("Service Center ID not found.");
       return;
     }
+  
+    for (const customer of customers) {
+      console.log("Customer:", customer);
+      let brandId, modelId;
+  
+      const brandName = formatName(customer.brand);
+      const modelName = formatName(customer.model);
+      console.log("Brand:", brandName, "Model:", modelName);
+  
+      // Validate brandName and modelName
+      if (!brandName || !modelName) {
+        console.error("Missing brand or model name for customer:", customer);
+        continue; // Skip this customer if brand or model is missing
+      }
+  
+      // Check if brand exists
+      let { data: brandData, error: brandError } = await supabase
+        .from("brands")
+        .select("id")
+        .eq("name", brandName)
+        .single();
+  
+      if (brandError || !brandData) {
+        // Insert new brand
+        let { data: newBrand, error: newBrandError } = await supabase
+          .from("brands")
+          .insert([{ name: brandName }])
+          .select("id")
+          .single();
+  
+        if (newBrandError) {
+          console.error("Error inserting brand:", newBrandError.message);
+          continue;
+        }
+        brandId = newBrand?.id;
+      } else {
+        brandId = brandData.id;
+      }
+  
+      // Check if model exists under the given brand
+      let { data: modelData, error: modelError } = await supabase
+        .from("models")
+        .select("id")
+        .eq("name", modelName)
+        .eq("brand_id", brandId)
+        .single();
+  
+      if (modelError || !modelData) {
+        // Insert new model
+        let { data: newModel, error: newModelError } = await supabase
+          .from("models")
+          .insert([{ name: modelName, brand_id: brandId }])
+          .select("id")
+          .single();
+  
+        if (newModelError) {
+          console.error("Error inserting model:", newModelError.message);
+          continue;
+        }
+        modelId = newModel?.id;
+      } else {
+        modelId = modelData.id;
+      }
+  
+      // Insert customer record
+      let { error: customerError } = await supabase.from("customers").insert([
+        {
+          name: customer.name,
+          mobile_number: customer.mobile_number,
+          vehicle_number: customer.vehicle_number,
+          address: customer.address,
+          city: customer.city,
+          pin_code: customer.pin_code,
+          brand_id: brandId,
+          model_id: modelId,
+          service_center_id: serviceCenterId,
+        },
+      ]);
+  
+      if (customerError) {
+        console.error("Error inserting customer:", customerError.message);
+      }
+    }
+  
+    alert("Bulk upload completed!");
+  };
+  
+
+  // const uploadToSupabase = async (customers: any[]) => {
+  //   const serviceCenterId = await fetchServiceCenterDetails();
+  //   if (!serviceCenterId) {
+  //     alert("Service Center ID not found.");
+  //     return;
+  //   }
 
     // Map data to match database columns
-    const formattedCustomers = customers.map((customer) => ({
-      name: customer.name,
-      mobile_number: customer.mobile_number,
-      vehicle_number: customer.vehicle_number,
-      address: customer.address,
-      city: customer.city,
-      pin_code: customer.pin_code,
-      brand_id: customer.brand_id,
-      model_id: customer.model_id,
-      service_center_id: serviceCenterId, // Attach service center
-    }));
+    // const formattedCustomers = customers.map((customer) => ({
+    //   name: customer.name,
+    //   mobile_number: customer.mobile_number,
+    //   vehicle_number: customer.vehicle_number,
+    //   address: customer.address,
+    //   city: customer.city,
+    //   pin_code: customer.pin_code,
+    //   brand_id: customer.brand_id,
+    //   model_id: customer.model_id,
+    //   service_center_id: serviceCenterId, // Attach service center
+    // }));
 
-    const { error } = await supabase
-      .from("customers")
-      .insert(formattedCustomers);
+    // const { error } = await supabase
+    //   .from("customers")
+    //   .insert(formattedCustomers);
 
-    if (error) {
-      console.error("Error inserting data:", error.message);
-      alert("Bulk upload failed.");
-    } else {
-      alert("Bulk upload successful!");
-      window.location.reload(); // Reload data
-    }
-  };
+  //   if (error) {
+  //     console.error("Error inserting data:", error.message);
+  //     alert("Bulk upload failed.");
+  //   } else {
+  //     alert("Bulk upload successful!");
+  //     window.location.reload(); // Reload data
+  //   }
+  // };
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -289,7 +387,7 @@ const ProfileCustomerList = () => {
   };
 
   const handleClearFilters = () => {
-    // Reset all filters to their initial values (empty strings)
+    
     setFilters({
       name: "",
       mobile_number: "",
@@ -312,7 +410,7 @@ const ProfileCustomerList = () => {
   
 
   return (
-    <main className="profile_service_add">
+    <main className="profile_service_add profile_customer_list_main">
       <div className={`inner_mainbox ${isToggled ? "toggled-class" : ""}`}>
         <div className="inner_left">
           <Sidemenu onToggle={toggleClass} />
@@ -343,17 +441,20 @@ const ProfileCustomerList = () => {
                       <button className="submite_btn">Add</button>
                     </Link>
                   </div>
-                  <div className="filter_btn">
+                  <div className="inner_form_group inner_form_group_upload">
                     <input
                       type="file"
                       accept=".csv, .xlsx"
                       onChange={handleFileUpload}
-                      className="submite_btn bulk_upload_btn"
+                      className=""
                     />
+                    {/* <div className="download_sample_pdf">Download Sample File</div> */}
+                    <DownloadSampleFile />
                     {/* <Link href="">
-                                            <button className="submite_btn bulk_upload_btn">Bulk Upload</button>
-                                        </Link> */}
+                        <button className="submite_btn bulk_upload_btn">Bulk Upload</button>
+                    </Link> */}
                   </div>
+                 
                 </div>
               </div>
               <div className="filter_form_box">
