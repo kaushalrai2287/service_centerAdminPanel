@@ -20,17 +20,32 @@ const Header = () => {
 
             if (user) {
                 const service_center_auth_id = user.id;
-                const { data, error } = await supabase
+
+              
+                let { data: serviceCenter, error: serviceCenterError } = await supabase
                     .from("service_centers")
                     .select("name")
                     .eq("auth_id", service_center_auth_id)
                     .single();
 
-                if (error) {
-                    console.error("Error fetching service center name:", error);
-                    setUserName("Guest"); // Fallback if name is not found
+                if (serviceCenterError || !serviceCenter) {
+                    console.log("User not found in service_centers, searching in users table...");
+
+                   
+                    const { data: userData, error: userError } = await supabase
+                        .from("users")
+                        .select("name")
+                        .eq("auth_id", service_center_auth_id)
+                        .single();
+
+                    if (userError || !userData) {
+                        console.error("Error fetching user name:", userError);
+                        setUserName("Guest"); // Fallback if name is not found in both tables
+                    } else {
+                        setUserName(userData.name);
+                    }
                 } else {
-                    setUserName(data?.name || "Guest");
+                    setUserName(serviceCenter.name);
                 }
             }
         };

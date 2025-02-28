@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import BootstrapClient from "../../components/BootstrapClient";
 import HeadingBredcrum from "../../components/HeadingBredcrum";
 import "./globals.css";
+import { PermissionsProvider } from "../../utils/services/PermissionsContext";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+      <PermissionsProvider>
+          {children}
+        </PermissionsProvider>
+        {/* {children} */}
         <BootstrapClient />
       </body>
     </html>

@@ -615,6 +615,7 @@ input[type="checkbox"] {
   accent-color: var(--first-color);
   cursor: pointer;
 }
+
 /* Login page ends */
 /* Add service center page start */
 .inner_form_group {
@@ -1028,3 +1029,9 @@ input[type="checkbox"] {
 }
 
 /* Notification List ends */
+
+.inner_form_group.new_permission_item {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
