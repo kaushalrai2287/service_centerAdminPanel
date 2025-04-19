@@ -42,7 +42,7 @@ export const loginUser = async ({
 
   
   const accessToken = data.session?.access_token;
-  // console.log("Access Token:", accessToken);
+  console.log("Access Token:", accessToken);
 
   if (error) {
     return {

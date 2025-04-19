@@ -68,7 +68,7 @@ const Page = () => {
   const [permissions, setPermissions] = useState<
     { id: number; name: string }[]
   >([]);
-  const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   const {
     register,
@@ -179,26 +179,27 @@ const Page = () => {
         alert("Unexpected error occurred. Please try again.");
         return;
       }
-      const { error: userInsertError } = await supabase
-      .from("users")
-      .insert([
+      const { error: userInsertError } = await supabase.from("users").insert([
         {
           auth_id: userId,
           name: data.name,
           email: data.email,
           phone_number: data.contact_number,
           user_type: "1",
-          user_type_name:"ServiceCenterUser",
+          user_type_name: "ServiceCenterUser",
         },
       ]);
 
-    if (userInsertError) {
-      console.error("Error inserting user into public.users:", userInsertError.message);
-      alert("Error adding user details. Please try again.");
-      return;
-    }
+      if (userInsertError) {
+        console.error(
+          "Error inserting user into public.users:",
+          userInsertError.message
+        );
+        alert("Error adding user details. Please try again.");
+        return;
+      }
 
-    alert("User signed up and added to the database successfully!");
+      alert("User signed up and added to the database successfully!");
       const { state, ...rest } = data;
       const payload = {
         ...rest,
@@ -211,21 +212,52 @@ const Page = () => {
         .from("service_center_users")
         .insert(payload);
 
+      // if (selectedPermissions.length > 0) {
+      //   const permissionPayload = selectedPermissions.map((permissionId) => ({
+      //     auth_id: userId,
+      //     permission_id: permissionId,
+      //   }));
+
+      //   const { error: permissionError } = await supabase
+      //     .from("service_center_user_permission_map")
+      //     .insert(permissionPayload);
+
+      //   if (permissionError) {
+      //     console.error(
+      //       "Error inserting permissions:",
+      //       permissionError.message
+      //     );
+      //     alert("Error assigning permissions.");
+      //   }
+      // }
+      const allPermissions = [
+        "Dashboard",
+        "booking_mangement",
+        "billing_payments",
+        "profile_mangement",
+        "notification",
+        "add_users",
+      ];
+
       if (selectedPermissions.length > 0) {
-        const permissionPayload = selectedPermissions.map((permissionId) => ({
-          auth_id: userId,
-          permission_id: permissionId,
-        }));
+        // Build permission payload
+        const permissionPayload = allPermissions.reduce(
+          (acc: any, perm: any) => {
+            acc[perm] = selectedPermissions.includes(perm) ? "YES" : "NO";
+            return acc;
+          },
+          {}
+        );
 
-        const { error: permissionError } = await supabase
-          .from("service_center_user_permission_map")
-          .insert(permissionPayload);
+        // Upsert (insert or update) user permissions
+        const { error } = await supabase
+          .from("service_center_users_permissions")
+          .upsert([{ auth_id: userId, ...permissionPayload }], {
+            onConflict: "auth_id",
+          });
 
-        if (permissionError) {
-          console.error(
-            "Error inserting permissions:",
-            permissionError.message
-          );
+        if (error) {
+          console.error("Error inserting/updating permissions:", error.message);
           alert("Error assigning permissions.");
         }
       }
@@ -271,12 +303,12 @@ const Page = () => {
     fetchStates();
   }, []);
 
-  const handlePermissionChange = (permissionId: number) => {
+  const handlePermissionChange = (permName: any) => {
     setSelectedPermissions(
-      (prevSelected) =>
-        prevSelected.includes(permissionId)
-          ? prevSelected.filter((id) => id !== permissionId) // Remove if already selected
-          : [...prevSelected, permissionId] // Add if not selected
+      (prev) =>
+        prev.includes(permName)
+          ? prev.filter((name) => name !== permName) // Remove if already selected
+          : [...prev, permName] // Add if not selected
     );
   };
 
@@ -414,14 +446,14 @@ const Page = () => {
               <div className="service_form_heading">Permissions</div>
               <div className="inner_form_group new_permission_item">
                 {permissions.map((perm) => (
-                  <div key={perm.id}>
+                  <div key={perm.name}>
                     <input
                       type="checkbox"
-                      id={`perm-${perm.id}`}
-                      checked={selectedPermissions.includes(perm.id)}
-                      onChange={() => handlePermissionChange(perm.id)}
+                      id={`perm-${perm.name}`}
+                      checked={selectedPermissions.includes(perm.name)}
+                      onChange={() => handlePermissionChange(perm.name)}
                     />
-                    <label htmlFor={`perm-${perm.id}`}>{perm.name}</label>
+                    <label htmlFor={`perm-${perm.name}`}>{perm.name}</label>
                   </div>
                 ))}
               </div>

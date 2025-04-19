@@ -336,7 +336,7 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
                     />
                   </div>
                   <div className="sidemenu_heading">
-                    <h3>Add Users</h3>
+                    <h3>Manage Users</h3>
                   </div>
                 </div>
               </button>
@@ -352,7 +352,10 @@ const Sidemenu = ({ onToggle }: { onToggle: () => void }) => {
                 <div className="sidemunu_submenu_listing">
                   <ul>
                     <li className={isActiveLink("/Users/add-users") ? "heighlight" : ""}>
-                      <Link href="/Users/add-users"> Users</Link>
+                      <Link href="/Users/add-users">Add Users</Link>
+                    </li>
+                    <li className={isActiveLink("/Users/list-users") ? "heighlight" : ""}>
+                      <Link href="/Users/list-users">Users</Link>
                     </li>
                 
                   </ul>

@@ -32,20 +32,45 @@ type Booking = {
 
 const BookingList = () => {
 
-
+  const [authId, setAuthId] = useState<string | null>(null);
+  const [serviceCenterId, setServiceCenterId] = useState<string | null>(null);
    useEffect(() => {
       const fetchUser = async () => {
-        const supabase = await createClient();
         const {
           data: { user },
           error,
         } = await supabase.auth.getUser();
+    
         if (error || !user) {
           redirect("/login");
+        } else {
+          // console.log("Logged-in auth_id:", user.id); 
+          setAuthId(user.id);
         }
       };
+    
       fetchUser();
     }, []);
+      useEffect(() => {
+        const fetchServiceCenter = async () => {
+          if (!authId) return;
+      
+          const { data, error } = await supabase
+            .from("service_centers")
+            .select("service_center_id")
+            .eq("auth_id", authId)
+            .single();
+      
+          if (error) {
+            console.error("Error fetching service center:", error.message);
+          } else {
+            // console.log("Service Center ID:", data?.service_center_id); 
+            setServiceCenterId(data?.service_center_id);
+          }
+        };
+      
+        fetchServiceCenter();
+      }, [authId]);
   const [isToggled, setIsToggled] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +95,10 @@ const BookingList = () => {
         return "orange";
       case "completed":
         return "green";
+      case "active":
+        return "green";
+      case "rejected":
+        return "red";
       case "accepted":
         return "blue";
       case "canceled":
@@ -79,7 +108,7 @@ const BookingList = () => {
     }
   };
 
-  type StatusType = "pending" | "accepted" | "completed" | "canceled";
+  type StatusType = "pending" | "accepted" | "completed" | "canceled" | "active" | "rejected";
 
   const handleStatusUpdate = async (
     bookingId: string,
@@ -98,6 +127,8 @@ const BookingList = () => {
       accepted: "accepted",
       completed: "completed",
       canceled: "canceled",
+      active: "active",
+      rejected: "rejected",
     };
 
     const lowerCaseStatus = currentStatus.toLowerCase() as StatusType;
@@ -139,12 +170,13 @@ const BookingList = () => {
 
   const fetchBookings = async (filters = {}) => {
     try {
+      if (!serviceCenterId) return;
       const response = await fetch("/api/ServiceCenterBookingListing", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...filters, page, limit }),
+        body: JSON.stringify({ ...filters,  service_center_id: serviceCenterId, page, limit }),
       });
 
       const result = await response.json();
@@ -198,6 +230,8 @@ const BookingList = () => {
                 <option value="accepted">Accepted</option>
                 <option value="completed">Completed</option>
                 <option value="canceled">Canceled</option>
+                <option value="active">Active</option>
+                <option value="rejected">Rejected</option>
               </select>
             ),
             editLink: "#", // Edit page link
@@ -218,9 +252,11 @@ const BookingList = () => {
   };
 
   useEffect(() => {
-    fetchBookings();
-  }, [page, limit, filters]);
-
+    if (serviceCenterId) {
+      fetchBookings();
+    }
+  }, [page, limit, filters, serviceCenterId]);
+  
   const columns = {
     vehicle_no: "Vehicle Number",
     brand: "Vehicle Brand",
@@ -337,6 +373,8 @@ const BookingList = () => {
                     <option value="accepted">Accepted</option>
                     <option value="completed">Completed</option>
                     <option value="canceled">Canceled</option>
+                    <option value="active">Active</option>
+                    <option value="rejected">Rejected</option>
                   </select>
                   <div className="down_arrow_btn">
                     <img

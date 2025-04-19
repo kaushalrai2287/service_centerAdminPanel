@@ -129,13 +129,20 @@
 // }
 import { createClient } from "../../../../utils/supabase/client";
 
-const supabase =await createClient();
+
 
 export async function POST(req: any) {
     try {
+        const supabase =await createClient();
+
+
+
+      
      
         const body = await req.json().catch(() => null);
-        const { vehicle_no, status, driver_username, start_date, end_date,page = 1, limit = 10 } = body || {};
+        // const { vehicle_no, status, driver_username, start_date, end_date,page = 1, limit = 10 } = body || {};
+        const { vehicle_no, status, driver_username, start_date, end_date, page = 1, limit = 10, service_center_id } = body || {};
+
 
        
         let query = supabase
@@ -148,6 +155,7 @@ export async function POST(req: any) {
                 Alternate_contact_no,
                 pickup_date_time,
                 pickup_address,
+                service_center_id,
                 dropoff_address,
                 special_instructions,
                 status,
@@ -159,6 +167,7 @@ export async function POST(req: any) {
                 )
               
             `)
+            .eq("service_center_id", service_center_id)
             .not('vehicles', 'is', null);;
 
       
