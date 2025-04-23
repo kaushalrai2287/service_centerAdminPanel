@@ -9,6 +9,7 @@ import Header from "../../../../components/Header";
 import Sidemenu from "../../../../components/Sidemenu";
 import { createClient } from "../../../../utils/supabase/client";
 import { redirect } from "next/navigation";
+import { assignDriverToBooking } from "../../../../utils/functions/assignDriverToBooking";
 const supabase = await createClient();
 
 const formSchema = z.object({
@@ -211,29 +212,21 @@ const NewBooking = () => {
         console.error("Booking Location Insert Error:", locationError.message);
         return;
       }
-      
       try {
-        const response = await fetch("/api/assignDriver", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            booking_id,
-            customer_latitude: data.p_lat,
-            customer_longitude: data.p_lng,
-          }),
-        });
-
-        const assignResult = await response.json();
-
-        if (response.ok && assignResult.status === 1) {
-          console.log("Driver assigned successfully:", assignResult);
+        // Call the assignDriverToBooking function instead of the fetch request
+        const assignResult = await assignDriverToBooking(
+          booking_id,
+          parseFloat(data.p_lat),
+          parseFloat(data.p_lng)
+        );
+    
+        if (assignResult.error) {
+          console.warn("Driver status change failed:", assignResult.message || assignResult.error);
         } else {
-          console.warn("Driver assignment failed:", assignResult.message || assignResult);
+          console.log("Driver status changed successfully:", assignResult);
         }
       } catch (assignError) {
-        console.error("Error calling assignDriver API:", assignError);
+        console.error("Error calling assignDriver function:", assignError);
       }
 
 
