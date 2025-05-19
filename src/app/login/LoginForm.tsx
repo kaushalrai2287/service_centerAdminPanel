@@ -153,6 +153,8 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { loginUser } from "./action";
+import { requestPushNotification } from "../../../utils/pushNotification";
+import { createClient } from "../../../utils/supabase/client";
 
 const formSchema = z.object({
   email: z
@@ -189,26 +191,64 @@ export default function LoginForm() {
     },
   });
 
+  // const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  //   setServerError(null);
+  //   setIsLoading(true);
+
+  //   try {
+  //     const { error, message } = await loginUser({
+  //       email: data.email,
+  //       password: data.password,
+  //     });
+
+  //     if (error) {
+  //       setServerError(message);
+  //     } else {
+  //       router.push("/booking-management/booking-list");
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setServerError(null);
     setIsLoading(true);
-
+  
     try {
       const { error, message } = await loginUser({
         email: data.email,
         password: data.password,
       });
-
+  
       if (error) {
         setServerError(message);
       } else {
+        const supabase = createClient();
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+  
+        if (!userError && userData?.user) {
+          // alert("Login successful!");
+          const token = await requestPushNotification();
+          // console.log("Token:", token);
+          if (token) {
+            await fetch("/api/saveToken", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                token,
+                user_id: userData.user.id,
+              }),
+            });
+          }
+        }
+  
+        // await fetchPermissions(); 
         router.push("/booking-management/booking-list");
       }
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <main className="main_section">
       <div className="login_mainbox">

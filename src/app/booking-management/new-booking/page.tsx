@@ -10,6 +10,7 @@ import Sidemenu from "../../../../components/Sidemenu";
 import { createClient } from "../../../../utils/supabase/client";
 import { redirect } from "next/navigation";
 import { assignDriverToBooking } from "../../../../utils/functions/assignDriverToBooking";
+import { getCurrentDateTime, getMaxDateTime } from "../../../../utils/functions/generatecurrentdatetime";
 const supabase = await createClient();
 
 const formSchema = z.object({
@@ -33,7 +34,7 @@ const formSchema = z.object({
   pickup_address: z.string().min(1, "Pickup Location is required"),
 
   dropoff_address: z.string().min(1, "Dropoff Location is required"),
- 
+
   special_instructions: z.string().optional(),
 
 
@@ -43,14 +44,22 @@ const formSchema = z.object({
   p_lng: z.string().min(1, "Pick Up Longitude is required"),
   d_lat: z.string().min(1, "Drop Latitude is required"),
   d_lng: z.string().min(1, "Drop Longitude is required"),
+  segment: z.string().min(1, "Segment is required"),
+  segment_id: z.string().min(1, "Segment ID is required"), // <-- Add this
 });
+interface ModelData {
+  segment_id: string;
+  segments: {
+    name: string;
+  };
+}
 
 type FormValues = z.infer<typeof formSchema>;
 
 
 const NewBooking = () => {
-  
-; // Check if authId is set
+
+  ; // Check if authId is set
   const [isToggled, setIsToggled] = useState(false); // State for toggle
   const [brands, setBrands] = useState<{ id: string; name: string }[]>([]);
   const [models, setModels] = useState<{ id: string; name: string }[]>([]);
@@ -58,13 +67,16 @@ const NewBooking = () => {
   const [isManualInput, setIsManualInput] = useState(false);
   const [authId, setAuthId] = useState<string | null>(null);
   const [serviceCenterId, setServiceCenterId] = useState<string | null>(null);
+  const [segments, setSegments] = useState<{ id: string; name: string }[]>([]);
+  const [selectedSegment, setSelectedSegment] = useState<string>("");
+
   useEffect(() => {
     const fetchUser = async () => {
       const {
         data: { user },
         error,
       } = await supabase.auth.getUser();
-  
+
       if (error || !user) {
         redirect("/login");
       } else {
@@ -72,16 +84,17 @@ const NewBooking = () => {
         setAuthId(user.id);
       }
     };
-  
+
     fetchUser();
   }, []);
- 
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     getValues,
     setValue,
+    watch, // 
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
@@ -89,18 +102,18 @@ const NewBooking = () => {
   const toggleClass = () => {
     setIsToggled(!isToggled);
   };
-  
+
 
   useEffect(() => {
     const fetchServiceCenter = async () => {
       if (!authId) return;
-  
+
       const { data, error } = await supabase
         .from("service_centers")
         .select("service_center_id")
         .eq("auth_id", authId)
         .single();
-  
+
       if (error) {
         console.error("Error fetching service center:", error.message);
       } else {
@@ -108,7 +121,7 @@ const NewBooking = () => {
         setServiceCenterId(data?.service_center_id);
       }
     };
-  
+
     fetchServiceCenter();
   }, [authId]);
   useEffect(() => {
@@ -139,6 +152,41 @@ const NewBooking = () => {
     };
     fetchModels();
   }, [selectedBrand]);
+  useEffect(() => {
+    const fetchSegment = async () => {
+      const supabase = createClient();
+      const { data: modelData, error } = await supabase
+        .from("models")
+        .select("segment_id, segments(name)")
+        .eq("id", watch("model"))
+        .single<ModelData>();
+      // console.log(modelData);
+      if (error) {
+        console.error("Error fetching segment:", error.message);
+        return;
+      }
+      if (modelData?.segments) {
+        setSelectedSegment(modelData.segments.name);
+        setValue("segment", modelData.segments.name); // For display
+        setValue("segment_id", modelData.segment_id); // Store ID in form
+      } else {
+        setSelectedSegment("");
+        setValue("segment", "");
+        setValue("segment_id", "");
+      }
+      // if (modelData?.segments) {
+      //   setSelectedSegment(modelData.segments.name);
+      //   setValue("segment", modelData.segments.name); // Pre-fill in form
+      // } else {
+      //   setSelectedSegment("");
+      //   setValue("segment", "");
+      // }
+    };
+
+    if (watch("model")) {
+      fetchSegment();
+    }
+  }, [watch("model")]);
   const onSubmit = async (data: FormValues) => {
     try {
       const { data: existingVehicle, error: existingVehicleError } =
@@ -172,7 +220,7 @@ const NewBooking = () => {
         vehicleId = newVehicle.vehicle_id;
       }
 
-      const { data:bookingData, error: bookingError } = await supabase.from("bookings").insert([
+      const { data: bookingData, error: bookingError } = await supabase.from("bookings").insert([
         {
           customer_name: data.customer_name,
           customer_phone: data.customer_phone,
@@ -183,18 +231,19 @@ const NewBooking = () => {
           customer_email: data.Customer_Email,
           Alternate_contact_no: data.Secondary_Contact_Number,
           vehicle_id: vehicleId,
-          service_center_id: serviceCenterId, 
+          service_center_id: serviceCenterId,
+          segment_id: data.segment_id,
         },
       ])
-      .select("booking_id")
-      .single();
+        .select("booking_id")
+        .single();
 
       if (bookingError) {
         console.error("Error inserting booking:", bookingError.message);
         return;
       }
       const booking_id = bookingData.booking_id;
-  
+
       // Step 4: Insert booking location
       const { error: locationError } = await supabase
         .from("booking_locations")
@@ -207,7 +256,7 @@ const NewBooking = () => {
             dropoff_lng: data.d_lng,
           },
         ]);
-  
+
       if (locationError) {
         console.error("Booking Location Insert Error:", locationError.message);
         return;
@@ -219,7 +268,7 @@ const NewBooking = () => {
           parseFloat(data.p_lat),
           parseFloat(data.p_lng)
         );
-    
+
         if (assignResult.error) {
           console.warn("Driver status change failed:", assignResult.message || assignResult.error);
         } else {
@@ -235,12 +284,12 @@ const NewBooking = () => {
       console.error("Error in onSubmit:", error);
     }
   };
-  
-  // ✅ Fetch vehicle and customer details based on vehicle_no
+
+
   const handleVehicleChange = async () => {
     const vehicle_no = getValues("vehicle_no");
     if (!vehicle_no) return;
-  
+
     try {
       // Step 1: Get vehicle details
       const { data: vehicle, error: vehicleError } = await supabase
@@ -248,30 +297,30 @@ const NewBooking = () => {
         .select("vehicle_id, brand_id, model_id, condition")
         .eq("license_plate_no", vehicle_no)
         .single();
-  
+
       if (vehicleError || !vehicle) {
         console.warn("Vehicle not found. Please enter details manually.");
-        
+
         // ✅ Clear existing fields if no vehicle found
         setValue("brand", "");
         setSelectedBrand("");
         setValue("model", "");
         setValue("condition", "");
-        
-       
+
+
         setIsManualInput(true);
         return;
       }
-  
+
       console.log("Vehicle found:", vehicle);
-  
-      // ✅ Pre-fill vehicle details
+
+
       setValue("brand", vehicle.brand_id);
       setSelectedBrand(vehicle.brand_id); // To trigger model fetch
       setValue("model", vehicle.model_id);
       setValue("condition", vehicle.condition || "");
-  
-      // Step 2: Get customer details linked to this vehicle
+
+
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
         .select(
@@ -279,10 +328,10 @@ const NewBooking = () => {
         )
         .eq("vehicle_id", vehicle.vehicle_id)
         .single();
-  
+
       if (bookingError || !booking) {
         console.warn("Booking details not found for this vehicle.");
-        
+
         // ✅ Allow manual entry if no booking found
         setValue("customer_name", "");
         setValue("customer_phone", "");
@@ -292,14 +341,14 @@ const NewBooking = () => {
         setValue("pickup_address", "");
         setValue("dropoff_address", "");
         setValue("special_instructions", "");
-  
+
         setIsManualInput(true); // Enable manual input for customer details
         return;
       }
-  
+
       console.log("Booking found:", booking);
-  
-      // ✅ Pre-fill booking/customer details
+
+
       setValue("customer_name", booking.customer_name);
       setValue("customer_phone", booking.customer_phone);
       setValue("Customer_Email", booking.customer_email);
@@ -308,13 +357,13 @@ const NewBooking = () => {
       setValue("pickup_address", booking.pickup_address);
       setValue("dropoff_address", booking.dropoff_address);
       setValue("special_instructions", booking.special_instructions || "");
-  
+
       setIsManualInput(false); // Disable manual input since data is pre-filled
     } catch (error) {
       console.error("Error in handleVehicleChange:", error);
     }
   };
-  
+
   // const onSubmit = async (data: FormValues) => {
   //   try {
   //     const { data: vehicleData, error: vehicleError } = await supabase
@@ -456,6 +505,28 @@ const NewBooking = () => {
                     {errors.model && <span>{errors.model.message}</span>}
                   </div>
                   <div className="inner_form_group">
+                    <label htmlFor="segment">
+                      Segment <span>*</span>
+                    </label>
+                    <select
+                      className="form-control"
+                      {...register("segment")}
+                      value={selectedSegment}
+                      onChange={(e) => {
+                        setSelectedSegment(e.target.value);
+                        setValue("segment", e.target.value);
+                      }}
+                    >
+                      <option value="">Select Segment</option>
+                      <option value="Economy">Economy</option>
+                      <option value="Premium">Premium</option>
+                      <option value="Luxury">Luxury</option>
+                    </select>
+                    {errors.segment && (
+                      <p className="erro_message">{errors.segment.message}</p>
+                    )}
+                  </div>
+                  <div className="inner_form_group">
                     <label htmlFor="condition">Vehicle Condition</label>
                     <input
                       className="form-control"
@@ -547,14 +618,14 @@ const NewBooking = () => {
                     )}
                   </div>
                   <div className="inner_form_group">
-                    <label htmlFor="pickup_date_time">
-                      Pick up date and time
-                    </label>
+                    <label htmlFor="pickup_date_time">Pick up date and time</label>
                     <input
                       className="form-control"
                       id="pickup_date_time"
                       type="datetime-local"
                       {...register("pickup_date_time")}
+                      min={getCurrentDateTime()}
+                      max={getMaxDateTime()}
                     />
                     {errors.pickup_date_time && (
                       <p className="erro_message">
@@ -577,35 +648,35 @@ const NewBooking = () => {
                     )}
                   </div>
                   <div className="inner_form_group">
-                <label htmlFor="p_lat">
-                  Pick Up Latitude <span>*</span>
-                </label>
-                <input
-                  className="form-control"
-                  type="text"
-                  {...register("p_lat")}
-                  id="p_lat"
-                />
-                {errors.p_lat && (
-                  <p className="erro_message">{errors.p_lat.message}</p>
-                )}
-              </div>
+                    <label htmlFor="p_lat">
+                      Pick Up Latitude <span>*</span>
+                    </label>
+                    <input
+                      className="form-control"
+                      type="text"
+                      {...register("p_lat")}
+                      id="p_lat"
+                    />
+                    {errors.p_lat && (
+                      <p className="erro_message">{errors.p_lat.message}</p>
+                    )}
+                  </div>
 
-              <div className="inner_form_group">
-                <label htmlFor="p_lng">
-                  Pick Up Longitude <span>*</span>
-                </label>
-                <input
-                  className="form-control"
-                  type="text"
-                  {...register("p_lng")}
-                  id="p_lng"
-                />
-                {errors.p_lng && (
-                  <p className="erro_message">{errors.p_lng.message}</p>
-                )}
-              </div>
-                  
+                  <div className="inner_form_group">
+                    <label htmlFor="p_lng">
+                      Pick Up Longitude <span>*</span>
+                    </label>
+                    <input
+                      className="form-control"
+                      type="text"
+                      {...register("p_lng")}
+                      id="p_lng"
+                    />
+                    {errors.p_lng && (
+                      <p className="erro_message">{errors.p_lng.message}</p>
+                    )}
+                  </div>
+
                   <div className="inner_form_group">
                     <label htmlFor="dropoff_address">Drop off Location</label>
                     <input
@@ -622,34 +693,34 @@ const NewBooking = () => {
                     )}
                   </div>
                   <div className="inner_form_group">
-                <label htmlFor="d_lat">
-                  Drop Latitude <span>*</span>
-                </label>
-                <input
-                  className="form-control"
-                  type="text"
-                  {...register("d_lat")}
-                  id="d_lat"
-                />
-                {errors.d_lat && (
-                  <p className="erro_message">{errors.d_lat.message}</p>
-                )}
-              </div>
+                    <label htmlFor="d_lat">
+                      Drop Latitude <span>*</span>
+                    </label>
+                    <input
+                      className="form-control"
+                      type="text"
+                      {...register("d_lat")}
+                      id="d_lat"
+                    />
+                    {errors.d_lat && (
+                      <p className="erro_message">{errors.d_lat.message}</p>
+                    )}
+                  </div>
 
-              <div className="inner_form_group">
-                <label htmlFor="d_lng">
-                  Drop Longitude <span>*</span>
-                </label>
-                <input
-                  className="form-control"
-                  type="text"
-                  {...register("d_lng")}
-                  id="d_lng"
-                />
-                {errors.d_lng && (
-                  <p className="erro_message">{errors.d_lng.message}</p>
-                )}
-              </div>
+                  <div className="inner_form_group">
+                    <label htmlFor="d_lng">
+                      Drop Longitude <span>*</span>
+                    </label>
+                    <input
+                      className="form-control"
+                      type="text"
+                      {...register("d_lng")}
+                      id="d_lng"
+                    />
+                    {errors.d_lng && (
+                      <p className="erro_message">{errors.d_lng.message}</p>
+                    )}
+                  </div>
                   <div className="inner_form_group">
                     <label htmlFor="special_instructions">
                       Special Instructions
